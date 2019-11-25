@@ -1,0 +1,36 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: circleci/node:10.16.3-stretch
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
+      - run: 
+          name: Install (missing) dependencies
+          command: npm install
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+      - run: 
+          name: Build application
+          command: npm run build
+      - run:
+          name: Install GCP tools
+          command: curl -sSL https://sdk.cloud.google.com | bash -s -- --disable-prompts
+      - run: 
+          name: Configure GCP connection
+          command: |
+            echo $GCP_SERVICE_KEY | ../google-cloud-sdk/bin/gcloud auth activate-service-account --key-file=-
+            ../google-cloud-sdk/bin/gcloud --quiet config set project ${GCP_PROJECT_ID}
+      - run: 
+          name: Provide JFrog Artifactory credentials
+          command: |
+            cat app.yaml | sed "s~#NPM_REGISTRY_URL~$NPM_REGISTRY_URL~g" | sed "s~#NPM_ACCESS_TOKEN~$NPM_ACCESS_TOKEN~g" > deployment.yaml
+      - run: 
+          name: Deploy
+          command: ../google-cloud-sdk/bin/gcloud app deploy deployment.yaml
