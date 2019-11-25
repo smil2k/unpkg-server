@@ -8,6 +8,9 @@ import bufferStream from './bufferStream.js';
 const npmRegistryURL =
   process.env.NPM_REGISTRY_URL || 'https://registry.npmjs.org';
 
+const npmRegistryAccessToken =
+  process.env.NPM_ACCESS_TOKEN || null;
+
 const agent = new https.Agent({
   keepAlive: true
 });
@@ -53,8 +56,9 @@ async function fetchPackageInfo(packageName, log) {
     path: pathname,
     port: port || 443,
     headers: {
-      Accept: 'application/json'
-    }
+      Accept: 'application/json',
+      'X-JFrog-Art-Api': npmRegistryAccessToken
+    },
   };
 
   const res = await get(options);
@@ -179,7 +183,11 @@ export async function getPackage(packageName, version, log) {
     agent: agent,
     hostname: hostname,
     path: pathname,
-    port: port || 443
+    port: port || 443,
+    headers: {
+      Accept: 'application/json',
+      'X-JFrog-Art-Api': npmRegistryAccessToken
+    },
   };
 
   const res = await get(options);
