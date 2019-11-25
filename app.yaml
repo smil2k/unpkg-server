@@ -8,3 +8,5 @@ automatic_scaling:
   max_instances: 4
 env_variables:
   NODE_ENV: 'production'
+  NPM_REGISTRY_URL: #NPM_REGISTRY_URL
+  NPM_ACCESS_TOKEN: #NPM_ACCESS_TOKEN
