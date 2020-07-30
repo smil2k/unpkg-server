@@ -1,4 +1,5 @@
 import cors from 'cors';
+import compression from 'compression';
 import express from 'express';
 import morgan from 'morgan';
 
@@ -35,7 +36,8 @@ export default function createServer() {
     app.disable('x-powered-by');
     app.enable('trust proxy');
     app.enable('strict routing');
-
+    app.use(compression())
+    
     if (process.env.NODE_ENV === 'development') {
       app.use(morgan('dev'));
     }
