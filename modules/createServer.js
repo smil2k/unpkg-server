@@ -27,10 +27,6 @@ setEnv();
 
 function createApp(callback) {
   const app = express();
-  app.use(compression({
-    level: 7,
-    threshold: 0
-  }))
   callback(app);
   return app;
 }
@@ -152,6 +148,11 @@ export default function createServer() {
     app.get('*/', (req, res) => {
       res.redirect(302, '/browse' + req.url);
     });
+
+    app.use(compression({
+      level: 7,
+      threshold: 0
+    }))
 
     app.get(
       '*',
