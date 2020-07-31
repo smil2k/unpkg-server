@@ -12,3 +12,4 @@ npm-debug.log*
 /service-account-staging.json
 /service-account.json
 /tokens/
+.vscode-js-debug-bootloader.js

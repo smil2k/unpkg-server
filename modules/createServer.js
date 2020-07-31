@@ -27,6 +27,10 @@ setEnv();
 
 function createApp(callback) {
   const app = express();
+  app.use(compression({
+    level: 7,
+    threshold: 0
+  }))
   callback(app);
   return app;
 }
@@ -36,7 +40,6 @@ export default function createServer() {
     app.disable('x-powered-by');
     app.enable('trust proxy');
     app.enable('strict routing');
-    app.use(compression())
     
     if (process.env.NODE_ENV === 'development') {
       app.use(morgan('dev'));
