@@ -186,7 +186,7 @@ export async function getPackage(packageName, version, log) {
     : packageName;
   const tarballURL = `${npmRegistryURL}/${packageName}/-/${tarballName}-${version}.tgz`;
 
-  log.debug('Fetching package for %s from %s', packageName, tarballURL);
+  log.info('Fetching package for %s from %s', packageName, tarballURL);
 
   const { hostname, pathname, port } = url.parse(tarballURL);
   const options = {
