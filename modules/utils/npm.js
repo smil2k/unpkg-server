@@ -39,16 +39,12 @@ function isScopedPackageName(packageName) {
 
 function encodePackageName(packageName) {
   return isScopedPackageName(packageName)
-    ? `@${encodeURIComponent(packageName.substring(1))}`
-    : encodeURIComponent(packageName);
+    ? `@${packageName.substring(1)}`
+    : packageName;
 }
 
-async function fetchPackageInfo(packageName, log) {
-  const infoURL = `${npmRegistryURL}/${packageName}`;
-
-  log.info('Fetching package info for %s from %s', packageName, infoURL);
-
-  const { hostname, pathname, port } = url.parse(infoURL);
+function assembleOptions(target){
+  const { hostname, pathname, port } = url.parse(target);
   const options = {
     agent: agent,
     hostname: hostname,
@@ -59,7 +55,15 @@ async function fetchPackageInfo(packageName, log) {
       'X-JFrog-Art-Api': npmRegistryAccessToken
     },
   };
+  return options;
+}
 
+async function fetchPackageInfo(packageName, log) {
+  const name = encodePackageName(packageName);
+  const infoURL = `${npmRegistryURL}/${name}`;
+  log.info('Fetching package info for %s from %s', packageName, infoURL);
+
+  const options = assembleOptions(infoURL)
   const res = await get(options);
   log.info('Received response status: ' +res.statusCode);
 
@@ -181,34 +185,23 @@ async function getFollowRedirects(options, log) {
  * Returns a stream of the tarball'd contents of the given package.
  */
 export async function getPackage(packageName, version, log) {
-  const tarballName = isScopedPackageName(packageName)
-    ? packageName.split('/')[1]
-    : packageName;
-  const tarballURL = `${npmRegistryURL}/${packageName}/-/${tarballName}-${version}.tgz`;
-
+  log.info('Get package %s in version %s', packageName, version);
+  const basePath = `${npmRegistryURL}/${packageName}/-/`;
+  const filenName = `${packageName}-${version}.tgz`;
+  const tarballURL = basePath + filenName
   log.info('Fetching package for %s from %s', packageName, tarballURL);
 
-  const { hostname, pathname, port } = url.parse(tarballURL);
-  const options = {
-    agent: agent,
-    hostname: hostname,
-    path: pathname,
-    port: port || 443,
-    headers: {
-      Accept: 'application/json',
-      'X-JFrog-Art-Api': npmRegistryAccessToken
-    },
-  };
-
+  const options = assembleOptions(tarballURL)
   let res = await getFollowRedirects(options, log);
   log.info('Fetching package returned with status code', res.statusCode)
 
   if (res.statusCode === 200) {
+    log.info('Package found.')
     return await res.pipe(gunzip());
   } else if (res.statusCode === 404) {
     return null;
   } else {
-    log.warn('Something bad happened. Server returned: ' + res.statusCode)
+    log.info('Something bad happened. Server returned: ' + res.statusCode)
     return null;
   }
 }
