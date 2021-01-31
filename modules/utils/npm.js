@@ -166,6 +166,16 @@ export async function getPackageConfig(packageName, version, log) {
   return value;
 }
 
+async function getFollowRedirects(options, log) {
+  const res = await get(options)
+  if(res.statusCode === 302){
+    const redirectTarget = res.headers.location;
+    log.info('Need to redirect to: ' + redirectTarget);
+    return getFollowRedirects(redirectTarget);
+  }
+  return res
+}
+
 /**
  * Returns a stream of the tarball'd contents of the given package.
  */
@@ -189,7 +199,8 @@ export async function getPackage(packageName, version, log) {
     },
   };
 
-  const res = await get(options);
+  let res = await getFollowRedirects(options, log);
+  log.info('Fetching package returned with status code', res.statusCode)
 
   if (res.statusCode === 200) {
     const stream = res.pipe(gunzip());
