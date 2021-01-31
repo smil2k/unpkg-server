@@ -61,6 +61,7 @@ async function fetchPackageInfo(packageName, log) {
   };
 
   const res = await get(options);
+  log.info('Received response status: ' +res.statusCode);
 
   if (res.statusCode === 200) {
     return bufferStream(res).then(JSON.parse);
@@ -210,17 +211,8 @@ export async function getPackage(packageName, version, log) {
 
   if (res.statusCode === 404) {
     return null;
+  } else {
+    log.warn('Something bad happened. Server returned: ' + res.statusCode)
+    return null;
   }
-
-  const content = (await bufferStream(res)).toString('utf-8');
-
-  log.error(
-    'Error fetching tarball for %s@%s (status: %s)',
-    packageName,
-    version,
-    res.statusCode
-  );
-  log.error(content);
-
-  return null;
 }
