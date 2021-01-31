@@ -15,6 +15,7 @@ node server.js \
 ```
 and navigate to 
 ```
+// note the trailing slash here!
 http://localhost:8081/browse/@rbmh-design-system/web-components@2.0.0/
 ```
 to browse content or to 
