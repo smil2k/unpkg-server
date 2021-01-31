@@ -204,12 +204,8 @@ export async function getPackage(packageName, version, log) {
   log.info('Fetching package returned with status code', res.statusCode)
 
   if (res.statusCode === 200) {
-    const stream = res.pipe(gunzip());
-    // stream.pause();
-    return stream;
-  }
-
-  if (res.statusCode === 404) {
+    return await res.pipe(gunzip());
+  } else if (res.statusCode === 404) {
     return null;
   } else {
     log.warn('Something bad happened. Server returned: ' + res.statusCode)
