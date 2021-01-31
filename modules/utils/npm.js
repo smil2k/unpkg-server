@@ -46,7 +46,7 @@ function encodePackageName(packageName) {
 async function fetchPackageInfo(packageName, log) {
   const infoURL = `${npmRegistryURL}/${packageName}`;
 
-  log.debug('Fetching package info for %s from %s', packageName, infoURL);
+  log.info('Fetching package info for %s from %s', packageName, infoURL);
 
   const { hostname, pathname, port } = url.parse(infoURL);
   const options = {
