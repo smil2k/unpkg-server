@@ -24,7 +24,5 @@ export default function parsePackagePathname(pathname) {
     filename // /file.js
   };
 
-  console.log('Parsed package', response)
-
   return response;
 }
