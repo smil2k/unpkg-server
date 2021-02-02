@@ -187,13 +187,28 @@ async function getFollowRedirects(options, log) {
 export async function getPackage(packageName, version, log) {
   log.info('Get package %s in version %s', packageName, version);
   const basePath = `${npmRegistryURL}/${packageName}/-/`;
-  const filenName = `${packageName}-${version}.tgz`;
-  const tarballURL = basePath + filenName
-  log.info('Fetching package for %s from %s', packageName, tarballURL);
+  const isScopedPackage = isScopedPackageName(packageName);
+  const packageNameWithoutScope = isScopedPackage
+    ? packageName.split('/').pop()
+    : packageName
+  const fileNameNameWithoutScope = `${packageNameWithoutScope}-${version}.tgz`;
+  const tarballURL = basePath + fileNameNameWithoutScope
+  log.info('Fetching package %s from %s', packageName, tarballURL);
 
   const options = assembleOptions(tarballURL)
   let res = await getFollowRedirects(options, log);
   log.info('Fetching package %s returned with status code %s', packageName, res.statusCode)
+
+  if(res.statusCode === 404 && isScopedPackage) {
+    log.info(`Could not find package ${packageName} but packaged is scoped. Retrying with scoped filename...`);
+    const fileNameWithScope = `${packageName}-${version}.tgz`;
+    // this hack is needed, because our RBMH Artifactory produces "uncommon" URLs
+    // the scope is usually not included in the file name, but Artifactory ignores that
+    // further reading: https://www.jfrog.com/jira/browse/RTFACT-24151
+    const alternativeTarballURL = basePath + fileNameWithScope
+    const options = assembleOptions(alternativeTarballURL)
+    res = await getFollowRedirects(options, log);
+  }
 
   if (res.statusCode === 200) {
     log.info(`Package ${packageName} found.`)
