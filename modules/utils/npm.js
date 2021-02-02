@@ -193,15 +193,16 @@ export async function getPackage(packageName, version, log) {
 
   const options = assembleOptions(tarballURL)
   let res = await getFollowRedirects(options, log);
-  log.info('Fetching package returned with status code', res.statusCode)
+  log.info('Fetching package %s returned with status code %s', packageName, res.statusCode)
 
   if (res.statusCode === 200) {
-    log.info('Package found.')
+    log.info(`Package ${packageName} found.`)
     return await res.pipe(gunzip());
   } else if (res.statusCode === 404) {
+    log.info(`Could not download package ${packageName}.`)
     return null;
   } else {
-    log.info('Something bad happened. Server returned: ' + res.statusCode)
+    log.info(`Something bad happened to package ${packageName}. Server returned: ${res.statusCode}`)
     return null;
   }
 }
