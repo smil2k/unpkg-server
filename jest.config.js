@@ -7,5 +7,4 @@ module.exports = {
     'utils\\/npm\\.js': '<rootDir>/modules/__mocks__/npmMock.js'
   },
   testMatch: ['**/__tests__/*-test.js'],
-  testURL: 'http://localhost/'
 };
