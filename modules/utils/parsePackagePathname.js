@@ -16,11 +16,13 @@ export default function parsePackagePathname(pathname) {
   const packageVersion = match[2] || 'latest';
   const filename = (match[3] || '').replace(/\/\/+/g, '/');
 
-  return {
+  const response = {
     // If the pathname is /@scope/name@version/file.js:
     packageName, // @scope/name
     packageVersion, // version
     packageSpec: `${packageName}@${packageVersion}`, // @scope/name@version
     filename // /file.js
   };
+
+  return response;
 }
