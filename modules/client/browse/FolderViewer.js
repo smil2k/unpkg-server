@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core';
 import PropTypes from 'prop-types';
-import VisuallyHidden from '@reach/visually-hidden';
+import { VisuallyHidden } from '@reach/visually-hidden';
 import sortBy from 'sort-by';
 
 import { formatBytes } from '../utils/format.js';
